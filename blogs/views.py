@@ -1,6 +1,13 @@
-from django.shortcuts import render
 
-from blogs.models import Blog
+
+from django.shortcuts import render
+from .models import Blog
+from django.db.models import Q
+
+
+# def blogs_list(request):
+#     blogs = Blog.objects.all().order_by('pub_date')
+#     return render(request, 'blogs/blogs_list.html', {'blog_details': blogs})
 
 def blogs_list(request):
     query = request.GET.get("q", "")
@@ -23,4 +30,3 @@ def blogs_list(request):
         blogs = Blog.objects.all().order_by('pub_date')
 
     return render(request, 'blogs/blogs_list.html', {'blog_details': blogs, 'query': query, 'field': field})
-
