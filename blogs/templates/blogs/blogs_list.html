@@ -17,15 +17,7 @@
 {#        {{ }} -- for output #}
     {% if blog_details %}
         {% for blogs in blog_details %}
-            <div class="blog">
-            <!-- Here blogs:blog_detail, and not just blog_detail,
-            because we are namespacing it to avoid confusion, which app?? -->
-                <h2><a href="{% url 'blogs:blog_detail' slug=blogs.slug %}">{{ blogs.title }}</a></h2>
-            {#calling function here from blogs class in models.py.#}
-            <p>{{ blogs.shorter_body }}</p>
-            <p> {{ blogs.pub_date }}</p>
-            <p class="author">added by {{ blogs.author.username }}</p>
-            </div>
+            
         {% endfor %}
     {% else %}
             {% if field == "title" %}
