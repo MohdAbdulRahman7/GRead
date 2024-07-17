@@ -1,0 +1,42 @@
+{% extends 'base_layout.html' %}
+
+{% block content %}
+    <form action="{% url 'blogs:blogs_list' %}" method="get">
+        <input name="q" type="text" placeholder="Filter..." value="{{ query }}">
+        <select name="field">
+            <option value="" {% if field == "" %}selected{% endif %}></option>
+            <option value="title" {% if field == "title" %}selected{% endif %}>Title</option>
+            <option value="body" {% if field == "body" %}selected{% endif %}>Body</option>
+            <option value="author" {% if field == "author" %}selected{% endif %}>Author</option>
+        </select>
+        <input type="submit" value="Search">
+    </form>
+    <h2>Blogs Feed</h2>
+    <div class="blogs">
+{#        {%  %} -- for python code like loops etc.#}
+{#        {{ }} -- for output #}
+    {% if blog_details %}
+        {% for blogs in blog_details %}
+            <div class="blog">
+            <!-- Here blogs:blog_detail, and not just blog_detail,
+            because we are namespacing it to avoid confusion, which app?? -->
+                <h2><a href="{% url 'blogs:blog_detail' slug=blogs.slug %}">{{ blogs.title }}</a></h2>
+            {#calling function here from blogs class in models.py.#}
+            <p>{{ blogs.shorter_body }}</p>
+            <p> {{ blogs.pub_date }}</p>
+            <p class="author">added by {{ blogs.author.username }}</p>
+            </div>
+        {% endfor %}
+    {% else %}
+            {% if field == "title" %}
+                <p>No blogs found for this topic.</p>
+            {% elif field == "body" %}
+                <p>No blogs found for this content.</p>
+            {% elif field == "author" %}
+                <p>No blogs found for this author.</p>
+            {% else %}
+                <p>No blogs found.</p>
+            {% endif %}
+        {% endif %}
+    </div>
+{% endblock %}
