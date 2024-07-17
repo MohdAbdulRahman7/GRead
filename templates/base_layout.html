@@ -1,0 +1,86 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Gread - Feed</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <h1><a href="{% url 'accounts:home' %}"><img style="height: 55px" src="{% static 'logo.png' %}" alt="gread_branding"></a></h1>
+        <nav>
+            <ul>
+                    <li><a href="{% url 'accounts:login' %}">Login</a></li>
+                    <li><a href="#">Sign Up</a></li>
+
+            </ul>
+        </nav>
+    </header>
+    <div >
+        {% block content %}
+        {% endblock %}
+    </div>
+
+</body>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var userId = "{{ user.id }}";
+        var cookieConsent = getCookie("cookie_consent_" + userId);
+        var sessionConsentNeeded = "{{ request.session.cookie_consent_needed }}";
+        console.log("Consent: ", cookieConsent + "   " + "session: ", sessionConsentNeeded);
+        if (!cookieConsent && sessionConsentNeeded === "True") {
+            console.log("INSIDE!");
+            document.getElementById("cookie-consent-banner").style.display = "block";
+        }
+        var next = "{{ cookie_exists }}";
+console.log("REQ: ", next);
+        document.getElementById("accept-cookies").addEventListener("click", function() {
+            setCookie("cookie_consent_" + userId, "accepted", 365);
+            document.getElementById("cookie-consent-banner").style.display = "none";
+            // Send AJAX request to clear session variable
+            clearCookieConsentSession();
+        });
+
+        document.getElementById("reject-cookies").addEventListener("click", function() {
+            setCookie("cookie_consent_" + userId, "rejected", 365);
+            document.getElementById("cookie-consent-banner").style.display = "none";
+            // Send AJAX request to clear session variable
+            clearCookieConsentSession();
+        });
+    });
+
+    function setCookie(name, value, days) {
+        var expires = "";
+        if (days) {
+            var date = new Date();
+            date.setTime(date.getTime() + (days*24*60*60*1000));
+            expires = "; expires=" + date.toUTCString();
+        }
+        document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+    }
+
+    function getCookie(name) {
+        var nameEQ = name + "=";
+        var ca = document.cookie.split(';');
+        for(var i=0;i < ca.length;i++) {
+            var c = ca[i];
+            while (c.charAt(0)===' ') c = c.substring(1,c.length);
+            if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length,c.length);
+        }
+        return null;
+    }
+
+    function clearCookieConsentSession() {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "accounts/clear_cookie_consent_session/", true);
+        {#xhr.open("POST", "{% url 'accounts:clear_cookie_consent_session' %}", true);#}
+        xhr.setRequestHeader("X-CSRFToken", getCookie("csrftoken"));
+        xhr.send();
+    }
+</script>
+
+</html>
