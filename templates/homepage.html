@@ -1,0 +1,12 @@
+{% extends 'base_layout.html' %}
+<head>
+    <title>Gread -Home</title>
+</head>
+{% block content %}
+    <!-- user variable - the user object from the session, managed by Django's auth system. 
+    This object is initially retrieved from the database when the user logs in
+     and is referenced in the session thereafter. -->
+    <h1>Welcome to Gread {{ user }} !</h1>
+    <p>This is your HOME</p>
+
+{% endblock %}
