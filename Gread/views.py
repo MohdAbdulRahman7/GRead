@@ -20,7 +20,15 @@ def about(request):
 
 
 def homepage(request):
+    user = request.user
+    cookie_consent = request.COOKIES.get(f'cookie_consent_{user.id}')
+
     context = {
         'user': request.user,
+        'cookie_exists': False,
     }
+
+    if user.is_authenticated and cookie_consent == 'accepted':
+        context['cookie_exists'] = True
+
     return render(request, 'homepage.html', context)
