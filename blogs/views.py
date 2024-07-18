@@ -34,7 +34,6 @@ def blogs_list(request):
 
     return render(request, 'blogs/blogs_list.html', {'blog_details': blogs, 'query': query, 'field': field})
 
-
 def blog_detail(request, slug):
     blog = Blog.objects.get(slug=slug)
     return render(request, 'blogs/blog_detail.html', {'blog': blog})
