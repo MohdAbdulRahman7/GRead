@@ -2,13 +2,14 @@
 
 {% block content %}
 <!-- ONLY LOGGED-IN USERS CAN ACCESS THIS -->
-    <div class="create-blog">
-    <h2>Create a new blog</h2>
+<div class="create-blog">
+    <h2>{% if form.initial.title %}Edit Your Draft{% else %}Create a New Blog{% endif %}</h2>
     <form class="site-form" action="{% url 'blogs:blog_create' %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form_UI }}
-        <input type="submit" value="Create">
+        {{ form.as_p }}
+        <input type="submit" name="publish" value="Publish">
+        <input type="submit" name="save_draft" value="Save Draft">
     </form>
-    </div>
-    <script src="/static/slugify.js"></script>
+</div>
+<script src="/static/slugify.js"></script>
 {% endblock %}
