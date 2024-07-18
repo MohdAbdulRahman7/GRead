@@ -47,3 +47,10 @@ def blog_create(request):
     else:
         form = forms.CreateBlog()
     return render(request, 'blogs/blog_create.html', {'form_UI': form})
+
+
+
+def blog_detail(request, slug):
+    blog = Blog.objects.get(slug=slug)
+    return render(request, 'blogs/blog_detail.html', {'blog': blog})
+
