@@ -1,0 +1,19 @@
+{% extends 'base_layout.html' %}
+
+{% block content %}
+   <div class="recently-viewed-blogs">
+       <h2>Recently Viewed Blogs</h2>
+       {% if blogs %}
+           <ul>
+               {% for blog in blogs %}
+                   <li>
+                       <a href="{% url 'blogs:blog_detail' blog.slug %}">{{ blog.title }}</a>
+                       <p>{{ blog.pub_date }}</p>
+                   </li>
+               {% endfor %}
+           </ul>
+       {% else %}
+           <p>You have not viewed any blogs recently.</p>
+       {% endif %}
+   </div>
+{% endblock %}

@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
@@ -7,6 +8,8 @@ from django.shortcuts import render, redirect
 
 def home_page(request):
     return HttpResponse("This is the home page")
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import login, logout, get_user
 
 
 def signup_view(request):
@@ -35,14 +38,30 @@ def login_view(request):
         if form.is_valid():
             # Login User
             user = form.get_user()
-            # messages.success(request, "You are now logged in.")
             login(request, user)
-            return redirect('accounts:home')  # Redirect to homepage or another page where banner is displayed
+            if not request.session.get('cookie_consent_given'):
+                request.session['cookie_consent_needed'] = True  # Set session variable
+            # Check if cookie consent is given
+            cookie_consent = request.COOKIES.get(f'cookie_consent_{user.id}', None)
+            if cookie_consent == 'accepted':
+                if 'next' in request.POST:
+                    return redirect(request.POST.get('next'))
+                else:
+                    # Redirect to blogs list or desired page
+                    return redirect('blogs:blogs_list')
+            else:
+                # Set session variable to show cookie consent banner
+                request.session['cookie_consent_needed'] = True
+                return redirect('home')  # Redirect to homepage or another page where banner is displayed
     else:
         form = AuthenticationForm()
     return render(request, 'accounts/login.html', {'form': form})
 
 
+def logout_view(request):
+    if request.method == 'POST':
+        logout(request)
+        return redirect('blogs:blogs_list')
 def reset_view(request):
     return redirect('blogs:')
 
