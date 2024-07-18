@@ -1,0 +1,29 @@
+{% extends 'base_layout.html' %}
+
+{% block content %}
+<div class="drafts-list">
+    <h2>Your Drafts</h2>
+
+    {% if session_draft %}
+        <h3>Unsaved Draft</h3>
+        <p>Title: {{ session_draft.title }}</p>
+        <a href="{% url 'blogs:load_draft' %}">Edit this draft</a>
+    {% else %}
+        <p>No drafts available.</p>
+    {% endif %}
+
+    {# Uncomment this section if you want to handle stored drafts as well #}
+    {# <!-- Stored drafts --> #}
+    {# <h3>Saved Drafts</h3> #}
+    {# <ul> #}
+    {#     {% for draft in user_drafts %} #}
+    {#         <li> #}
+    {#             <p>Title: {{ draft.title }}</p> #}
+    {#             <a href="{% url 'blogs:blog_create' %}?draft_id={{ draft.id }}">Edit this draft</a> #}
+    {#         </li> #}
+    {#     {% empty %} #}
+    {#         <li>No drafts available.</li> #}
+    {#     {% endfor %} #}
+    {# </ul> #}
+</div>
+{% endblock %}
