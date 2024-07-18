@@ -17,3 +17,10 @@ def about(request):
         context = {'visits': None}
 
     return render(request, 'about.html', context)
+
+
+def homepage(request):
+    context = {
+        'user': request.user,
+    }
+    return render(request, 'homepage.html', context)
