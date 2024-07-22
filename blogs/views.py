@@ -36,7 +36,25 @@ def blogs_list(request):
 
 
 def blog_detail(request, slug):
-    blog = Blog.objects.get(slug=slug)
+    blog = get_object_or_404(Blog, slug=slug)
+
+    # Retrieve the current list of recently viewed slugs from the session
+    recently_viewed = request.session.get('recently_viewed', [])
+
+    # If the slug is already in the list, remove it
+    if slug in recently_viewed:
+        recently_viewed.remove(slug)
+
+    # Insert the current blog's slug at the beginning of the list
+    recently_viewed.insert(0, slug)
+
+    # Ensure the list does not exceed 5 items
+    if len(recently_viewed) > 5:
+        recently_viewed.pop()
+
+    # Update the session with the modified list
+    request.session['recently_viewed'] = recently_viewed
+
     return render(request, 'blogs/blog_detail.html', {'blog': blog})
 
 

@@ -12,6 +12,17 @@
         <input type="submit" value="Search">
     </form>
     <h2>Blogs Feed</h2>
+
+    <!-- FOR DISPLAYING RECENTLY VIEWED BLOGS -->
+    {% if user.is_authenticated %}
+        <a href="{% url 'blogs:recently_viewed_blogs' %}" class="btn btn-primary">Recently Viewed Blogs</a>
+    {% endif %}
+<br>
+    <!-- FOR DISPLAYING User's DRAFTS -->
+    {% if user.is_authenticated %}
+        <a href="{% url 'blogs:drafts_list' %}" class="btn btn-primary">View Drafts</a>
+    {% endif %}
+<br><br>
     <div class="blogs">
 {#        {%  %} -- for python code like loops etc.#}
 {#        {{ }} -- for output #}
