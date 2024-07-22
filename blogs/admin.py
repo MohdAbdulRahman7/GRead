@@ -1,4 +1,16 @@
 from django.contrib import admin
+from .models import Blog
+# , Member, Comment, Like, Event)  # From models.py file import Blog class
+
+# Register your models here.
+admin.site.register(Blog)
+# admin.site.register(Member)
+# admin.site.register(Comment)
+# admin.site.register(Like)
+# admin.site.register(Event)
+
+
+from django.contrib import admin
 from .models import Blog, Comment, Like
 from accounts.admin_site import custom_admin_site
 
