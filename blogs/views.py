@@ -32,6 +32,9 @@ def blogs_list(request):
     else:
         blogs = Blog.objects.all().order_by('pub_date')
 
+    # Annotate each blog with the count of likes
+    blogs = blogs.annotate(likes_count=Count('likes'))
+
     return render(request, 'blogs/blogs_list.html', {'blog_details': blogs, 'query': query, 'field': field})
 
 
