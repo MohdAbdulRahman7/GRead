@@ -1,53 +1,91 @@
 {% extends 'base_layout.html' %}
-
+{% block title %} Gread - Feed {% endblock %}
+{% load static %}
 {% block content %}
-    <form action="{% url 'blogs:blogs_list' %}" method="get">
-        <input name="q" type="text" placeholder="Filter..." value="{{ query }}">
-        <select name="field">
-            <option value="" {% if field == "" %}selected{% endif %}></option>
-            <option value="title" {% if field == "title" %}selected{% endif %}>Title</option>
-            <option value="body" {% if field == "body" %}selected{% endif %}>Body</option>
-            <option value="author" {% if field == "author" %}selected{% endif %}>Author</option>
-        </select>
-        <input type="submit" value="Search">
-    </form>
-    <h2>Blogs Feed</h2>
-
-    <!-- FOR DISPLAYING RECENTLY VIEWED BLOGS -->
-    {% if user.is_authenticated %}
-        <a href="{% url 'blogs:recently_viewed_blogs' %}" class="btn btn-primary">Recently Viewed Blogs</a>
-    {% endif %}
-<br>
-    <!-- FOR DISPLAYING User's DRAFTS -->
-    {% if user.is_authenticated %}
-        <a href="{% url 'blogs:drafts_list' %}" class="btn btn-primary">View Drafts</a>
-    {% endif %}
-<br><br>
-    <div class="blogs">
-{#        {%  %} -- for python code like loops etc.#}
-{#        {{ }} -- for output #}
-    {% if blog_details %}
-        {% for blogs in blog_details %}
-            <div class="blog">
-            <!-- Here blogs:blog_detail, and not just blog_detail,
-            because we are namespacing it to avoid confusion, which app?? -->
-                <h2><a href="{% url 'blogs:blog_detail' slug=blogs.slug %}">{{ blogs.title }}</a></h2>
-            {#calling function here from blogs class in models.py.#}
-            <p>{{ blogs.shorter_body }}</p>
-            <p> {{ blogs.pub_date }}</p>
-            <p class="author">added by {{ blogs.author.username }}</p>
+    <section class="trending-podcast-section section-padding" style="padding-top: 200px">
+    <div class="container">
+        <div class="row gy-4">
+            <div class="col-lg-12 col-12">
+                <div class="section-title-wrap mb-5">
+                    <h4 class="section-title">Feed</h4>
+                </div>
             </div>
-        {% endfor %}
-    {% else %}
-            {% if field == "title" %}
-                <p>No blogs found for this topic.</p>
-            {% elif field == "body" %}
-                <p>No blogs found for this content.</p>
-            {% elif field == "author" %}
-                <p>No blogs found for this author.</p>
-            {% else %}
-                <p>No blogs found.</p>
+
+           {% if user.is_authenticated %}
+                <div class="col-lg-8 col-12 mb-4">
+                    <a href="{% url 'blogs:recently_viewed_blogs' %}" class="btn btn-primary">Recently Viewed Blogs</a>
+                    <a href="{% url 'blogs:drafts_list' %}" class="btn btn-success">View Drafts</a>
+                </div>
+                <div class="col-lg-4 col-12 mb-4 text-lg-end">
+                    <a href="{% url 'blogs:blog_create' %}" class="btn custom-btn custom-border-btn smoothscroll">Create Blog</a>
+                </div>
             {% endif %}
-        {% endif %}
+
+            {% if blog_details %}
+                {% for blog in blog_details %}
+                <div class="col-lg-4 col-12 mb-4 mb-lg-0">
+                    <div class="custom-block custom-block-full">
+                        <div class="custom-block-image-wrap">
+                            <a href="{% url 'blogs:blog_detail' slug=blog.slug %}">
+                                <img src="{{ blog.thumbnail.url }}" class="custom-block-image img-fluid" alt="{{ blog.title }}">
+                            </a>
+                        </div>
+
+                        <div class="custom-block-info">
+                            <h5 class="mb-2">
+                                <a href="{% url 'blogs:blog_detail' slug=blog.slug %}">
+                                    {{ blog.title }}
+                                </a>
+                            </h5>
+
+                            <div class="profile-block d-flex">
+                                <img src="{% static 'images/verified.png' %}" class="verified-image-blogs img-fluid" alt="">
+                                <a href="{% url 'accounts:profile' blog.author.username %}">
+                                    <p>
+                                        {{ blog.author.username }}
+                                        <strong>{{ blog.author.get_profile_type_display }}</strong>
+                                    </p>
+                                </a>
+                            </div>
+
+                            <p class="mb-0">{{ blog.shorter_body }}</p>
+
+                            <div class="custom-block-bottom d-flex justify-content-between mt-3">
+                                <a href="#" class="bi-heart me-1">
+                                    <span>{{ blog.likes_count }}</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="social-share d-flex flex-column ms-auto">
+                            <a href="#" class="badge ms-auto">
+                                <i class="bi-heart"></i>
+                            </a>
+
+                            <a href="#" class="badge ms-auto">
+                                <i class="bi-bookmark"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-lg-12 col-12">
+                    <div class="no-blogs-message">
+                        {% if field == "title" %}
+                            <p>No blogs found for this topic.</p>
+                        {% elif field == "body" %}
+                            <p>No blogs found for this content.</p>
+                        {% elif field == "author" %}
+                            <p>No blogs found for this author.</p>
+                        {% else %}
+                            <p>No blogs found.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
     </div>
+</section>
+
 {% endblock %}
