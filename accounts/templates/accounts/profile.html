@@ -1,0 +1,72 @@
+<!-- profile.html -->
+{% extends 'base_layout.html' %}
+<style>
+    .profile-header img {
+    border-radius: 50%;
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+}
+</style>
+{% block title %}GRead - Profile{% endblock %}
+{% load static %}
+{% block content %}
+<section class="profile-section section-padding" style="padding-top: 200px">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-12 mx-auto">
+                <div class="section-title-wrap mb-5">
+                    <h4 class="section-title">{{ member.user.username }}'s Profile</h4>
+                </div>
+
+                <div class="card shadow-lg border-0 rounded-lg mb-4">
+                    <div class="card-header">
+                        <div class="profile-header d-flex align-items-center">
+                            <img src="{{ member.profile_picture.url }}" alt="Profile Picture" class="rounded-circle me-3" style="width: 150px; height: 150px;">
+                            <div>
+                                <h3 class="mb-0">{{ member.user.username }}<img src="{% static 'images/verified.png' %}" alt="Verified" class="verified-image ms-2" style="width: 20px;"></h3>
+
+                                {% if member.city or member.province %}
+                                    <p class="text-muted">{{ member.city }}{% if member.city and member.province %}, {% endif %}{{ member.province }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% if is_own_profile and visits is not None %}
+                            <p class="text-muted">You have visited this site {{ visits }} times.</p>
+                        {% endif %}
+                        <div>
+                            <strong>Bio:</strong>
+                            <div id="bio-container">{{ member.bio }}</div>
+                        </div>
+                        <p><strong>Number of Blogs Posted:</strong> {{ member.number_of_blogs_posted }}</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const bioContainer = document.getElementById('bio-container');
+        const bioText = bioContainer.innerText;
+        const sentences = bioText.split('. '); // Split the bio into sentences
+
+        bioContainer.innerHTML = ''; // Clear the original bio content
+
+        let paragraph = '';
+        sentences.forEach((sentence, index) => {
+            paragraph += sentence + '. ';
+            if ((index + 1) % 3 === 0 || index === sentences.length - 1) {
+                const p = document.createElement('p');
+                p.innerText = paragraph.trim();
+                bioContainer.appendChild(p);
+                paragraph = '';
+            }
+        });
+    });
+</script>
+{% endblock %}
