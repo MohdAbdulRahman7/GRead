@@ -1,15 +1,78 @@
 {% extends 'base_layout.html' %}
-
+{% load static %}
+{% block title %} Gread - Create Blog {% endblock %}
 {% block content %}
-<!-- ONLY LOGGED-IN USERS CAN ACCESS THIS -->
-<div class="create-blog">
-    <h2>{% if form.initial.title %}Edit Your Draft{% else %}Create a New Blog{% endif %}</h2>
-    <form class="site-form" action="{% url 'blogs:blog_create' %}" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <input type="submit" name="publish" value="Publish">
-        <input type="submit" name="save_draft" value="Save Draft">
-    </form>
-</div>
+<section class="contact-section section-padding" style="padding-top: 200px">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-12 mx-auto">
+                <div class="section-title-wrap mb-5">
+                    <h4 class="section-title">{% if form.initial.title %}Edit Your Draft{% else %}Create a New Blog{% endif %}</h4>
+                </div>
+
+                <form action="{% url 'blogs:blog_create' %}" method="post" class="custom-form contact-form" enctype="multipart/form-data" role="form">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-lg-12 col-md-12 col-12 mb-3">
+                            <div class="form-floating">
+                                <input type="text" name="title" id="id_title" class="form-control" placeholder="Title" value="{{ form.title.value|default_if_none:'' }}">
+                                <label for="id_title">Title</label>
+                                {% if form.title.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.title.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="col-lg-12 col-md-12 col-12 mb-3">
+                            <div class="form-floating">
+                                <input type="text" name="slug" id="id_slug" class="form-control" placeholder="Slug" value="{{ form.slug.value|default_if_none:'' }}">
+                                <label for="id_slug">Slug</label>
+                                {% if form.slug.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.slug.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="col-lg-12 col-md-12 col-12 mb-3">
+                            <div class="form-floating">
+                                <textarea name="body" id="id_body" class="form-control" placeholder="Body">{{ form.body.value|default_if_none:'' }}</textarea>
+                                <label for="id_body">Body</label>
+                                {% if form.body.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.body.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="col-lg-12 col-md-12 col-12 mb-3">
+                            <div class="form-floating">
+                                <input type="file" name="thumbnail" id="id_thumbnail" class="form-control" placeholder="Thumbnail">
+                                <label for="id_thumbnail">Thumbnail</label>
+                                {% if form.thumbnail.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.thumbnail.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 col-12 ms-auto">
+                            <button type="submit" name="publish" class="form-control btn btn-primary">Publish</button>
+                        </div>
+
+                        <div class="col-lg-4 col-12 ms-auto">
+                            <button type="submit" name="save_draft" class="form-control btn btn-secondary">Save Draft</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
 <script src="/static/slugify.js"></script>
 {% endblock %}
