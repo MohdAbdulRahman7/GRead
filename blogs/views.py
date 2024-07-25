@@ -7,11 +7,6 @@ from django.db.models import Q
 from django.contrib import messages
 from .forms import CreateBlog
 
-
-# def blogs_list(request):
-#     blogs = Blog.objects.all().order_by('pub_date')
-#     return render(request, 'blogs/blogs_list.html', {'blog_details': blogs})
-
 def blogs_list(request):
     query = request.GET.get("q", "")
     field = request.GET.get("field", "")
@@ -144,4 +139,3 @@ def load_draft(request):
         return render(request, 'blogs/blog_create.html', {'form': form})
     else:
         return redirect('blogs:drafts_list')
-
