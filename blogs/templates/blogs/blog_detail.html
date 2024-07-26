@@ -1,16 +1,284 @@
 {% extends 'base_layout.html' %}
 
 {% block content %}
-   <div class="blog-detail">
-       <div class="blog">
-           <img src="{{ blog.thumbnail.url }}">
-           <h2>{{ blog.title }}</h2>
-           <p>
-                {{ blog.body }}
-           </p>
-           <p>
-               {{ blog.pub_date }}
-           </p>
-       </div>
-   </div>
+<style>
+    .reply-form {
+        display: none;
+        margin-left: 20px;
+    }
+    .reply {
+        margin-left: 20px;
+    }
+    .comments {
+    max-width: 100%;
+}
+
+.comment {
+    position: relative;
+}
+
+.replies {
+    position: relative;
+    border-left: 2px solid #e0e0e0;
+    padding-left: 15px;
+    margin-left: 15px;
+}
+
+.replies:before {
+    content: "";
+    position: absolute;
+    left: -15px;
+    top: 0;
+    bottom: 0;
+    width: 15px;
+    border-top: 2px solid #e0e0e0;
+    border-left: 2px solid #e0e0e0;
+    height: 100%;
+}
+
+.card {
+    margin-bottom: 10px;
+}
+
+.card-body {
+    padding: 10px;
+}
+.card {
+    max-width: 600px; /* Set a maximum width for the card */
+}
+
+.reply-form {
+    margin-top: 10px;
+}
+
+.btn-link {
+    padding: 0;
+}
+
+.reply-card {
+    position: relative;
+}
+
+.reply-card:before {
+    content: "";
+    position: absolute;
+    left: -15px;
+    top: 10px; /* Align with the top padding of the card */
+    width: 15px;
+    border-top: 2px solid #e0e0e0;
+}
+
+</style>
+
+<script>
+    function toggleReplyForm(commentId) {
+        var replyForm = document.getElementById('reply-form-' + commentId);
+        if (replyForm.style.display === 'none' || replyForm.style.display === '') {
+            replyForm.style.display = 'block';
+        } else {
+            replyForm.style.display = 'none';
+        }
+    }
+</script>
+
+<div class="blog-detail">
+<!-- Blog Details -->
+<section class="blog-detail-section section-padding" id="section_blog_detail" style="padding-top: 200px">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-12 col-12">
+                <div class="section-title-wrap mb-5">
+                    <h4 class="section-title">{{ blog.title }}</h4>
+                </div>
+            </div>
+
+            <div class="col-lg-12 col-12 mb-4">
+                <div class="row gy-4">
+                    <div class="col-lg-3 col-12">
+                        <div class="custom-block-icon-wrap">
+                            <div class="custom-block-image-wrap custom-block-image-detail-page">
+                                <img src="{{ blog.thumbnail.url }}" class="custom-block-image img-fluid" alt="Blog thumbnail">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-9 col-12">
+                        <div class="custom-block-info">
+                            <div class="custom-block-top d-flex mb-1">
+                                <small class="me-4">
+                                    <i class="bi-calendar3"></i>
+                                    {{ blog.pub_date }}
+                                </small>
+                            </div>
+
+                            <p>{{ blog.body }}</p>
+
+                            {% if user.is_authenticated %}
+                                <form action="{% url 'blogs:like_post' blog.slug %}" method="post" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn {% if user_likes_post %}btn-danger{% else %}btn-primary{% endif %}">
+                                        {% if user_likes_post %}
+                                            <i class="bi bi-hand-thumbs-down"></i>
+                                        {% else %}
+                                            <i class="bi bi-hand-thumbs-up"></i>
+                                        {% endif %}
+                                    </button>
+                                </form>
+                            {% endif %}
+
+                            {% if request.user == blog.author %}
+                                <div class="edit-blog-section mt-5">
+                                    <h3>Edit Blog</h3>
+                                    <form method="post" action="{% url 'blogs:blog_detail' slug=blog.slug %}" enctype="multipart/form-data" class="custom-form contact-form" role="form">
+                                        {% csrf_token %}
+                                        <div class="row">
+                                            <div class="col-lg-12 col-md-12 col-12 mb-3">
+                                                <div class="form-floating">
+                                                    <input type="text" name="title" id="id_title" class="form-control" placeholder="Title" value="{{ blog_form.title.value|default_if_none:'' }}">
+                                                    <label for="id_title">Title</label>
+{#                                                    {% if blog_form.title.errors %}#}
+{#                                                        <div class="invalid-feedback d-block">#}
+{#                                                            {{ blog_form.title.errors }}#}
+{#                                                        </div>#}
+{#                                                    {% endif %}#}
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-12 col-md-12 col-12 mb-3">
+                                                <div class="form-floating">
+                                                    <input type="text" name="slug" id="id_slug" class="form-control" placeholder="Slug" value="{{ blog_form.slug.value|default_if_none:'' }}">
+                                                    <label for="id_slug">Slug</label>
+                                                    {% if blog_form.slug.errors %}
+                                                        <div class="invalid-feedback d-block">
+                                                            {{ blog_form.slug.errors }}
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-12 col-md-12 col-12 mb-3">
+                                                <div class="form-floating">
+                                                    <textarea name="body" id="id_body" class="form-control" placeholder="Body">{{ blog_form.body.value|default_if_none:'' }}</textarea>
+                                                    <label for="id_body">Body</label>
+                                                    {% if blog_form.body.errors %}
+                                                        <div class="invalid-feedback d-block">
+                                                            {{ blog_form.body.errors }}
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-12 col-md-12 col-12 mb-3">
+                                                <div class="form-floating">
+                                                    <input type="file" name="thumbnail" id="id_thumbnail" class="form-control" placeholder="Thumbnail">
+                                                    <label for="id_thumbnail">Thumbnail</label>
+                                                    {% if blog_form.thumbnail.errors %}
+                                                        <div class="invalid-feedback d-block">
+                                                            {{ blog_form.thumbnail.errors }}
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+
+                                            <input type="hidden" name="form_type" value="blog_form">
+
+                                            <div class="col-lg-4 col-12 ms-auto">
+                                                <button type="submit" class="form-control btn btn-primary">Save Changes</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Comments Section -->
+<div class="comments-section section-padding" id="comments_section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-12 col-12">
+                <div class="section-title-wrap mb-5">
+                    <h4 class="section-title">Comments</h4>
+                </div>
+            </div>
+
+            <div class="col-lg-12 col-12">
+                <div class="comments">
+                    {% for comment in comments %}
+                        <div class="comment mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <p>{{ comment.body }}</p>
+                                    <p><strong>{{ comment.author.username }}</strong> - {{ comment.created_at }}</p>
+                                    <a href="javascript:void(0);" onclick="toggleReplyForm({{ comment.id }});" class="btn btn-link">Reply</a>
+
+                                    <!-- Main Reply Form -->
+                                    <div class="reply-form mt-3 collapse" id="reply-form-{{ comment.id }}">
+                                        <form method="post" action="{% url 'blogs:blog_detail' slug=blog.slug %}">
+                                            {% csrf_token %}
+                                            <div class="form-floating mb-3">
+                                                <textarea name="body" id="id_body_{{ comment.id }}" class="form-control" placeholder="Reply">{{ form.body.value|default_if_none:'' }}</textarea>
+                                                <label for="id_body_{{ comment.id }}">Reply</label>
+                                                {% if form.body.errors %}
+                                                    <div class="invalid-feedback d-block">
+                                                        {{ form.body.errors }}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                                            <input type="hidden" name="form_type" value="comment_form">
+                                            <button type="submit" class="btn btn-primary">Reply</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Display replies -->
+                            <div class="replies ms-5 mt-3">
+                                {% for reply in comment.replies.all %}
+                                    <div class="card reply-card mb-3">
+                                        <div class="card-body">
+                                            <p>{{ reply.body }}</p>
+                                            <p><strong>{{ reply.author.username }}</strong> - {{ reply.created_at }}</p>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="col-lg-12 col-12 mt-4">
+                {% if user.is_authenticated %}
+                    <div class="comment-form">
+                        <h3>Leave a Comment</h3>
+                        <form method="post" action="{% url 'blogs:blog_detail' slug=blog.slug %}">
+                            {% csrf_token %}
+                            <div class="form-floating mb-3">
+                                <textarea name="body" id="id_body" class="form-control" placeholder="Leave a comment">{{ form.body.value|default_if_none:'' }}</textarea>
+                                <label for="id_body">Leave a comment</label>
+                                {% if form.body.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.body.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <input type="hidden" name="form_type" value="comment_form">
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </form>
+                    </div>
+                {% else %}
+                    <p>You need to <a href="{% url 'accounts:login' %}">log in</a> to post a comment.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+</div>
 {% endblock %}

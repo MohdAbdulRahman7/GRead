@@ -1,16 +1,75 @@
 {% extends 'base_layout.html' %}
-
+{% block title %} Gread - My Drafts {% endblock %}
+{% load static %}
 {% block content %}
 <div class="drafts-list">
-    <h2>Your Drafts</h2>
+<section class="latest-podcast-section section-padding" style="padding-top: 200px">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-12 col-12">
+                <div class="section-title-wrap mb-5">
+                    <h4 class="section-title">Your Drafts</h4>
+                </div>
+            </div>
 
-    {% if session_draft %}
-        <h3>Unsaved Draft</h3>
-        <p>Title: {{ session_draft.title }}</p>
-        <a href="{% url 'blogs:load_draft' %}">Edit this draft</a>
-    {% else %}
-        <p>No drafts available.</p>
-    {% endif %}
+            {% if session_draft %}
+                <div class="col-lg-6 col-12 mb-4 mb-lg-0">
+                    <div class="custom-block d-flex">
+                        <div class="">
+                            <div class="custom-block-icon-wrap">
+                                <div class="section-overlay"></div>
+                                <a href="{% url 'blogs:load_draft' %}" class="custom-block-image-wrap">
+                                    <img src="{{ MEDIA_URL }}{{ session_draft.thumbnail }}" class="custom-block-image img-fluid" alt="Draft Thumbnail">
+
+                                    <a href="{% url 'blogs:load_draft' %}" class="custom-block-icon">
+                                        <i class="bi-pencil-fill"></i>
+                                    </a>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="custom-block-info">
+                            <h5 class="mb-2">
+                                <a href="{% url 'blogs:load_draft' %}">
+                                    Unsaved Draft
+                                </a>
+                            </h5>
+
+                            <p class="mb-0">Title: {{ session_draft.title }}</p>
+
+                            <div class="custom-block-bottom d-flex justify-content-between mt-3">
+                                <a href="{% url 'blogs:load_draft' %}" class="btn custom-btn">
+                                    Edit this draft
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-column ms-auto">
+                            <a href="{% url 'blogs:load_draft' %}" class="badge ms-auto">
+                                <i class="bi-pencil"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-lg-12 col-12">
+                    <div class="no-blogs-message">
+                        <p>No drafts available.</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+
+{#    {% if session_draft %}#}
+{#        <h3>Unsaved Draft</h3>#}
+{#        <p>Title: {{ session_draft.title }}</p>#}
+{#        <a href="{% url 'blogs:load_draft' %}">Edit this draft</a>#}
+{#    {% else %}#}
+{#        <p>No drafts available.</p>#}
+{#    {% endif %}#}
 
     {# Uncomment this section if you want to handle stored drafts as well #}
     {# <!-- Stored drafts --> #}

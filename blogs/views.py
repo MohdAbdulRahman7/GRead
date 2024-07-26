@@ -1,16 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Blog
+from .models import Blog, Member, Comment, Like
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from . import forms
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.contrib import messages
-from .forms import CreateBlog
-
-
-# def blogs_list(request):
-#     blogs = Blog.objects.all().order_by('pub_date')
-#     return render(request, 'blogs/blogs_list.html', {'blog_details': blogs})
+from .forms import CreateBlog, CommentForm
 
 def blogs_list(request):
     query = request.GET.get("q", "")
@@ -40,25 +35,59 @@ def blogs_list(request):
 
 def blog_detail(request, slug):
     blog = get_object_or_404(Blog, slug=slug)
+    comments = Comment.objects.filter(post=blog, parent=None).order_by('-created_at')
+    user_likes_post = Like.objects.filter(post=blog,
+                                          user=request.user).exists() if request.user.is_authenticated else False
 
-    # Retrieve the current list of recently viewed slugs from the session
+    # Handle recently viewed blogs
     recently_viewed = request.session.get('recently_viewed', [])
-
-    # If the slug is already in the list, remove it
     if slug in recently_viewed:
         recently_viewed.remove(slug)
-
-    # Insert the current blog's slug at the beginning of the list
     recently_viewed.insert(0, slug)
-
-    # Ensure the list does not exceed 5 items
     if len(recently_viewed) > 5:
         recently_viewed.pop()
-
-    # Update the session with the modified list
     request.session['recently_viewed'] = recently_viewed
 
-    return render(request, 'blogs/blog_detail.html', {'blog': blog})
+    # Initialize forms
+    form = CommentForm()
+    blog_form = CreateBlog(instance=blog) if request.user == blog.author else None
+
+    # If user sends a POST call from this UI (Comments add)
+    if request.method == 'POST':
+        form_type = request.POST.get('form_type')
+
+        if form_type == 'comment_form':
+            if not request.user.is_authenticated:
+                return redirect('accounts:login')
+            form = CommentForm(request.POST)
+            if form.is_valid():
+                comment = form.save(commit=False)
+                comment.post = blog
+                comment.author = request.user
+                parent_id = request.POST.get('parent_id')
+                if parent_id:
+                    parent_comment = get_object_or_404(Comment, id=parent_id)
+                    comment.parent = parent_comment
+                comment.save()
+                return redirect('blogs:blog_detail', slug=blog.slug)
+
+        elif form_type == 'blog_form' and request.user == blog.author:
+            blog_form = CreateBlog(request.POST, request.FILES, instance=blog)
+            if blog_form.is_valid():
+                blog_form.save()
+                return redirect('blogs:blog_detail', slug=blog.slug)
+
+    context = {
+        'blog': blog,
+        'comments': comments,
+        'form': form,
+        'blog_form': blog_form,
+        'user_likes_post': user_likes_post,
+        'recently_viewed': recently_viewed
+    }
+    return render(request, 'blogs/blog_detail.html', context)
+
+
 
 
 @login_required(login_url="/accounts/login/")  # Redirect if user not logged-in
@@ -145,3 +174,10 @@ def load_draft(request):
     else:
         return redirect('blogs:drafts_list')
 
+@login_required
+def like_post(request, slug):
+    post = get_object_or_404(Blog, slug=slug)
+    like, created = Like.objects.get_or_create(post=post, user=request.user)
+    if not created:
+        like.delete()
+    return redirect('blogs:blog_detail', slug=slug)
