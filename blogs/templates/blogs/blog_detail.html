@@ -1,16 +1,139 @@
 {% extends 'base_layout.html' %}
 
 {% block content %}
-   <div class="blog-detail">
-       <div class="blog">
-           <img src="{{ blog.thumbnail.url }}">
-           <h2>{{ blog.title }}</h2>
-           <p>
-                {{ blog.body }}
-           </p>
-           <p>
-               {{ blog.pub_date }}
-           </p>
-       </div>
-   </div>
+<style>
+    .reply-form {
+        display: none;
+    }
+    .reply {
+        margin-left: 20px;
+    }
+</style>
+
+<script>
+    function toggleReplyForm(commentId) {
+        var replyForm = document.getElementById('reply-form-' + commentId);
+        if (replyForm.style.display === 'none' || replyForm.style.display === '') {
+            replyForm.style.display = 'block';
+        } else {
+            replyForm.style.display = 'none';
+        }
+    }
+</script>
+
+<div class="blog-detail">
+<!-- Blog Details -->
+<section class="blog-detail-section section-padding" id="section_blog_detail">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-12 col-12">
+                <h4 class="section-title">{{ blog.title }}</h4>
+            </div>
+
+            <div class="col-lg-12 col-12 mb-4">
+                <div class="row gy-4">
+                    <div class="col-lg-3 col-12">
+                        <img src="{{ blog.thumbnail.url }}" alt="Blog thumbnail" style="width: 100%;">
+                    </div>
+
+                    <div class="col-lg-9 col-12">
+                        <div>
+                            <small>{{ blog.pub_date }}</small>
+                            <p>{{ blog.body }}</p>
+
+                            {% if user.is_authenticated %}
+                                <form action="{% url 'blogs:like_post' blog.slug %}" method="post" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="{% if user_likes_post %}btn-danger{% else %}btn-primary{% endif %}">
+                                        {% if user_likes_post %}
+                                            Dislike
+                                        {% else %}
+                                            Like
+                                        {% endif %}
+                                    </button>
+                                </form>
+                            {% endif %}
+
+                            {% if request.user == blog.author %}
+                                <div class="edit-blog-section mt-5">
+                                    <h3>Edit Blog</h3>
+                                    <form method="post" action="{% url 'blogs:blog_detail' slug=blog.slug %}" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <input type="text" name="title" placeholder="Title" value="{{ blog_form.title.value|default_if_none:'' }}">
+                                        <input type="text" name="slug" placeholder="Slug" value="{{ blog_form.slug.value|default_if_none:'' }}">
+                                        <textarea name="body" placeholder="Body">{{ blog_form.body.value|default_if_none:'' }}</textarea>
+                                        <input type="file" name="thumbnail">
+                                        <input type="hidden" name="form_type" value="blog_form">
+                                        <button type="submit">Save Changes</button>
+                                    </form>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Comments Section -->
+<div class="comments-section section-padding" id="comments_section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-12 col-12">
+                <h4 class="section-title">Comments</h4>
+            </div>
+
+            <div class="col-lg-12 col-12">
+                <div>
+                    {% for comment in comments %}
+                        <div class="comment mb-4">
+                            <p>{{ comment.body }}</p>
+                            <p><strong>{{ comment.author.username }}</strong> - {{ comment.created_at }}</p>
+                            <a href="javascript:void(0);" onclick="toggleReplyForm({{ comment.id }});">Reply</a>
+
+                            <!-- Main Reply Form -->
+                            <div class="reply-form" id="reply-form-{{ comment.id }}">
+                                <form method="post" action="{% url 'blogs:blog_detail' slug=blog.slug %}">
+                                    {% csrf_token %}
+                                    <textarea name="body" placeholder="Reply">{{ form.body.value|default_if_none:'' }}</textarea>
+                                    <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                                    <input type="hidden" name="form_type" value="comment_form">
+                                    <button type="submit">Reply</button>
+                                </form>
+                            </div>
+
+                            <!-- Display replies -->
+                            <div class="replies">
+                                {% for reply in comment.replies.all %}
+                                    <div class="reply">
+                                        <p>{{ reply.body }}</p>
+                                        <p><strong>{{ reply.author.username }}</strong> - {{ reply.created_at }}</p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="col-lg-12 col-12 mt-4">
+                {% if user.is_authenticated %}
+                    <div class="comment-form">
+                        <h3>Leave a Comment</h3>
+                        <form method="post" action="{% url 'blogs:blog_detail' slug=blog.slug %}">
+                            {% csrf_token %}
+                            <textarea name="body" placeholder="Leave a comment">{{ form.body.value|default_if_none:'' }}</textarea>
+                            <input type="hidden" name="form_type" value="comment_form">
+                            <button type="submit">Submit</button>
+                        </form>
+                    </div>
+                {% else %}
+                    <p>You need to <a href="{% url 'accounts:login' %}">log in</a> to post a comment.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+</div>
 {% endblock %}
