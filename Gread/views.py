@@ -79,6 +79,10 @@ def homepage(request):
 
 
 def about(request):
+    return render(request, 'about.html')
+
+
+def profile(request):
     user = get_user(request)
     cookie_consent = request.COOKIES.get(f'cookie_consent_{user.id}')
 
@@ -90,6 +94,13 @@ def about(request):
     else:
         context = {'visits': None}
 
-    return render(request, 'about.html', context)
+    return render(request, 'accounts/profile.html', context)
 
 
+# Test Views
+def index(request):
+    return render(request, 'index.html')
+
+
+def contact(request):
+    return render(request, 'contact.html')
