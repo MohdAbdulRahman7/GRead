@@ -1,29 +1,26 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth import login, logout
 from django.contrib import messages
+from django.contrib.auth import login, logout
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.models import User
 from django.http import JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
+
 from accounts.models import Member
 from .forms import CustomUserCreationForm
-from django.contrib.auth.models import User
 
 
-
+# Signup - View
 def signup_view(request):
     if request.method == 'POST':
-        # request.POST here is the data flowing from UI to this function
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST, request.FILES)
         if form.is_valid():
-            user_name = form.save()  # Save the form data to the database
-            # Log User In
-            login(request, user_name)
-            # Cookie CONSENT
-            request.session['cookie_consent_needed'] = True  # Set session variable
+            user = form.save()
+            login(request, user)
+            request.session['cookie_consent_needed'] = True
             messages.info(request, "Welcome! Please review and accept our cookie policy.")
-
-            return redirect('blogs:blogs_list')  # appname: named url value
-    else:  # Get Method Called
-        form = UserCreationForm()
+            return redirect('home')
+    else:
+        form = CustomUserCreationForm()
     return render(request, 'accounts/signup.html', {'form': form})
 
 
@@ -105,3 +102,4 @@ def profile_view(request, username):
         context['visits'] = None
 
     return render(request, 'accounts/profile.html', context)
+

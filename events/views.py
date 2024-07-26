@@ -1,8 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from .models import Event
-from .forms import EventForm
-# Create your views here.
+from .forms import EventForm, EnrollmentForm
+
 @login_required
 def add_event(request):
     if request.method == 'POST':
@@ -15,3 +15,8 @@ def add_event(request):
     else:
         form = EventForm()
     return render(request, 'events/add_event.html', {'form': form})
+
+def events_list(request):
+    events = Event.objects.all().order_by('-datetime')
+    return render(request, 'events/events_list.html', {'events': events})
+
