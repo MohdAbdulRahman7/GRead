@@ -1,12 +1,226 @@
 {% extends 'base_layout.html' %}
-<head>
-    <title>Gread -Home</title>
-</head>
+
+{% block title %} Gread - Home {% endblock %}
+{% load static %}
 {% block content %}
     <!-- user variable - the user object from the session, managed by Django's auth system. 
     This object is initially retrieved from the database when the user logs in
      and is referenced in the session thereafter. -->
-    <h1>Welcome to Gread {{ user }} !</h1>
-    <p>This is your HOME</p>
+<!-- Opening Section & profiles -->
+    <section class="hero-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 col-12">
+                <div class="text-center mb-5 pb-2">
+                    <h1 class="text-white">Welcome to GRead{% if user.is_authenticated %}, {{ user }}{% endif %}</h1>
+                    <p class="text-white">Sustainability for All. Explore your fav events & blogs.</p>
+                    <a href="#section_2" class="btn custom-btn smoothscroll mt-3">Start exploring</a>
+                </div>
+
+                <div class="owl-carousel owl-theme">
+                    {% for item in member_tags %}
+                    <div class="owl-carousel-info-wrap item">
+{#                    <a href="{% url 'accounts:profile' item.member.user.username %}">#}
+                         <img src="{{ item.member.profile_picture.url }}" class="owl-carousel-image img-fluid" 
+                              style="height: 400px; object-fit: cover; width: 100%;" alt="{{ item.member.user.username }}"
+                                onclick="redirectToProfile('{{ item.member.user.username }}')">
+{#                    </a>#}
+                        <div class="owl-carousel-info">
+                            <h4 class="mb-2">
+                                {{ item.member.user.username }}
+                                <img src="../static/images/verified.png" class="owl-carousel-verified-image img-fluid" alt="Verified">
+                            </h4>
+
+                            <span class="badge">{{ item.tag }}</span>
+                        </div>
+
+                        <div class="social-share">
+                            <ul class="social-icon">
+                                <li class="social-icon-item">
+                                    <a href="#" class="social-icon-link bi-twitter"></a>
+                                </li>
+                                <li class="social-icon-item">
+                                    <a href="#" class="social-icon-link bi-facebook"></a>
+                                </li>
+                                <!-- Add more social links as needed -->
+                            </ul>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            <script>
+    function redirectToProfile(username) {
+        window.location.href = `/accounts/profile/${username}/`;
+    }
+</script>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Trending Blogs -- MOST Liked Section -->
+    <section class="trending-podcast-section section-padding pb-0">
+    <div class="container">
+        <div class="row gy-4">
+            <div class="col-lg-12 col-12">
+                <div class="section-title-wrap mb-5">
+                    <h4 class="section-title">Trending Topics</h4>
+                </div>
+            </div>
+
+            {% for blog in most_liked_blogs %}
+            <div class="col-lg-4 col-12 mb-4 mb-lg-0">
+                <div class="custom-block custom-block-full">
+                    <div class="custom-block-image-wrap">
+                        <a href="{% url 'blogs:blog_detail' blog.slug %}">
+                            <img src="{{ blog.thumbnail.url }}" class="custom-block-image img-fluid" alt="{{ blog.title }}">
+                        </a>
+                    </div>
+
+                    <div class="custom-block-info">
+                        <h5 class="mb-2">
+                            <a href="{% url 'blogs:blog_detail' blog.slug %}">
+                                {{ blog.title }}
+                            </a>
+                        </h5>
+
+                        <div class="profile-block d-flex">
+                                <img src="{% static 'images/verified.png' %}" class="verified-image-blogs img-fluid" alt="">
+                            <a href="{% url 'accounts:profile' blog.author.username %}">
+                                <p>
+                                {{ blog.author.username }}
+                                <strong>{{ blog.author.get_profile_type_display }}</strong>
+                            </p>
+                            </a>
+
+                        </div>
+
+                        <p class="mb-0">{{ blog.shorter_body }}</p>
+
+                        <div class="custom-block-bottom d-flex justify-content-between mt-3">
+                            <a href="#" class="bi-heart me-1">
+                                <span>{{ blog.like_set.count }}</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="social-share d-flex flex-column ms-auto">
+                        <a href="#" class="badge ms-auto">
+                            <i class="bi-heart"></i>
+                        </a>
+
+                        <a href="#" class="badge ms-auto">
+                            <i class="bi-bookmark"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+<!-- Upcoming Events Section -->
+    <section class="topics-section section-padding pb-0" id="section_3">
+    <div class="container">
+        <div class="row gy-4">
+            <div class="col-lg-12 col-12">
+                <div class="section-title-wrap mb-5">
+                    <h4 class="section-title">Events</h4>
+                </div>
+            </div>
+
+            {% for event in recent_events %}
+            <div class="col-lg-3 col-md-6 col-12 mb-4 mb-lg-0">
+                <div class="custom-block custom-block-overlay">
+                    <a href="{% url 'events:events_list' %}" class="custom-block-image-wrap">
+                        <img src="{{ event.event_banner.url }}" class="custom-block-image img-fluid" alt="{{ event.title }}">
+                    </a>
+
+                    <div class="custom-block-info custom-block-overlay-info">
+                        <h5 class="mb-1">
+                            <a href="{% url 'events:events_list' %}">
+                                {{ event.title }}
+                            </a>
+                        </h5>
+                        <p class="badge mb-0">{{ event.datetime|date:"F j, Y, g:i a" }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+<!-- Latest Blogs Section -->
+    <section class="latest-podcast-section section-padding" id="section_2">
+    <div class="container">
+        <div class="row justify-content-center gy-4">
+            <div class="col-lg-12 col-12">
+                <div class="section-title-wrap mb-5">
+                    <h4 class="section-title">Latest Blogs</h4>
+                </div>
+            </div>
+
+            {% for blog in latest_blogs %}
+            <div class="col-lg-6 col-12 mb-4 mb-lg-0">
+                <div class="custom-block d-flex">
+                    <div class="">
+                        <div class="custom-block-icon-wrap">
+                            <div class="section-overlay"></div>
+                            <a href="{% url 'blogs:blog_detail' blog.slug %}" class="custom-block-image-wrap">
+                                <img src="{{ blog.thumbnail.url }}" class="custom-block-image img-fluid" alt="{{ blog.title }}">
+
+                                <a href="{% url 'blogs:blog_detail' blog.slug %}" class="custom-block-icon">
+                                    <i class="bi-play-fill"></i>
+                                </a>
+                            </a>
+                        </div>
+
+                        <div class="mt-2">
+                            <a href="#" class="btn custom-btn">
+                                View
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="custom-block-info">
+                        <h5 class="mb-2">
+                            <a href="{% url 'blogs:blog_detail' blog.slug %}">
+                                {{ blog.title }}
+                            </a>
+                        </h5>
+
+                        <div class="profile-block d-flex">
+                            <img src="{% static 'images/verified.png' %}" class="verified-image-blogs img-fluid" alt="">
+                            <a href="{% url 'accounts:profile' blog.author.username %}">
+                                <p>
+                                {{ blog.author.username }}
+                                <strong>{{ blog.author.get_profile_type_display }}</strong>
+                            </p>
+                        </div>
+
+                        <p class="mb-0">{{ blog.shorter_body }}</p>
+
+                        <div class="custom-block-bottom d-flex justify-content-between mt-3">
+                            <a href="#" class="bi-heart me-1">
+                                <span>{{ blog.like_set.count }}</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-column ms-auto">
+                        <a href="#" class="badge ms-auto">
+                            <i class="bi-heart"></i>
+                        </a>
+
+                        <a href="#" class="badge ms-auto">
+                            <i class="bi-bookmark"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
 
 {% endblock %}
+

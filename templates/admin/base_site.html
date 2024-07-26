@@ -1,0 +1,25 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" type="text/css" href="{% static 'custom_admin.css' %}">
+{% endblock %}
+
+{% block title %}My Custom Admin{% endblock %}
+
+{% block branding %}
+    <h1 id="site-name">
+    <a href="{% url 'admin:index' %}">
+        <img src="{% static 'images/logo_faded.png' %}" alt="GRead Logo" style="height: 50px; vertical-align: middle;">
+        Admin Portal
+    </a>
+</h1>
+{% endblock %}
+
+{% block nav-global %}
+    {{ block.super }}
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+{% endblock %}
