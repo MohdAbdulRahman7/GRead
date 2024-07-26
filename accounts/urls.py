@@ -6,7 +6,6 @@ from . import views
 app_name = 'accounts'
 
 urlpatterns = [
-    path('', views.home_page, name='home'),
     path('login/', views.login_view, name='login'),
     path('signup/', views.signup_view, name='signup'),
     path('reset/<uidb64>/<token>/',
@@ -15,5 +14,5 @@ urlpatterns = [
     path('reset/done/',
          auth_views.PasswordResetCompleteView.as_view(template_name='accounts/password_reset_complete.html'),
          name='password_reset_complete.html'),
-    path('clear_cookie_consent_session/', views.clear_cookie_consent_session, name='clear_cookie_consent_session'),
+    path('clear_cookie_consent_session/', views.clear_cookie_consent_session, name='clear_cookie_consent_session')
 ]
