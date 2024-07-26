@@ -1,10 +1,7 @@
-<<<<<<< HEAD
-=======
 """
 We need to add here, so that we see our models/tables in the admin panel.
 """
 
->>>>>>> c39e2c1356dfd382015cc6868217db3fc95ea0f2
 from django.contrib import admin
 from .models import Blog
 # , Member, Comment, Like, Event)  # From models.py file import Blog class
@@ -15,7 +12,6 @@ admin.site.register(Blog)
 # admin.site.register(Comment)
 # admin.site.register(Like)
 # admin.site.register(Event)
-<<<<<<< HEAD
 
 
 from django.contrib import admin
@@ -41,5 +37,3 @@ class LikeAdmin(admin.ModelAdmin):
 admin.site.register(Blog, BlogAdmin)
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(Like, LikeAdmin)
-=======
->>>>>>> c39e2c1356dfd382015cc6868217db3fc95ea0f2
