@@ -80,3 +80,28 @@ def clear_cookie_consent_session(request):
             return JsonResponse({'message': 'Session variable not found'}, status=404)
     else:
         return JsonResponse({'message': 'Method not allowed'}, status=405)
+
+
+# Profile Page - View
+def profile_view(request, username):
+    user = get_object_or_404(User, username=username)
+    member = get_object_or_404(Member, user=user)
+
+    context = {
+        'member': member,
+        'is_own_profile': request.user == user
+    }
+
+    if request.user.is_authenticated and request.user == user:
+        cookie_consent = request.COOKIES.get(f'cookie_consent_{user.id}')
+        if cookie_consent == 'accepted':
+            user_id = user.id
+            visits_cookie_name = f'visits_{user_id}'
+            visits = int(request.COOKIES.get(visits_cookie_name, '0'))
+            context['visits'] = visits
+        else:
+            context['visits'] = None
+    else:
+        context['visits'] = None
+
+    return render(request, 'accounts/profile.html', context)
